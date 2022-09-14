@@ -5,37 +5,44 @@ import com.kh.product.domain.Product;
 import java.util.List;
 
 public interface ProductDAO {
-
   /**
-   * 등록
-   * @param product 상품정보
+   * 상품등록
+   * @param product
    * @return
    */
-  Product save(Product product);
+  int add(Product product);
 
   /**
-   * 조회
-   * @param productId 상품아이디
-   * @return 상품
+   * 상품조회
+   * @param pid
+   * @return
    */
-  Product findById(Long productId);
+  Product findById(Long pid);
 
   /**
-   * 수정
-   * @param product 수정할 상품정보
+   * 상품수정
+   * @param pid
+   * @param product
+   * @return
    */
-  void update(Long productId, Product product);
+  int update(Long pid, Product product);
 
   /**
-   * 삭제
-   * @param productId 상품아이디
+   * 상품삭제
+   * @param pid
+   * @return
    */
-  void delete(Long productId);
+  int delete(Long pid);
 
   /**
-   * 목록
-   * @return 상품전체
+   * 전체상품조회
+   * @return
    */
-  List<Product> findAll();
+  List<Product> allProducts();
+
+  /**
+   * 상품번호생성
+   * @return
+   */
+  Long generatePid();
 }
-

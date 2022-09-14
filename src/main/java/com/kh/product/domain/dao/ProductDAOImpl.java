@@ -3,97 +3,113 @@ package com.kh.product.domain.dao;
 import com.kh.product.domain.Product;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 
 @Slf4j
 @Repository
 @RequiredArgsConstructor
 public class ProductDAOImpl implements ProductDAO {
-
   private final JdbcTemplate jt;
 
-  //등록
+  /**
+   * 상품등록
+   *
+   * @param product
+   * @return
+   */
   @Override
-  public Product save(Product product) {
+  public int add(Product product) {
+    int add = 0;
     StringBuffer sql = new StringBuffer();
-    sql.append("insert into product values(product_product_id_seq.nextval,?,?,?)");
+    sql.append("insert into product (pid, pname, count, price) ");
+    sql.append("values (?, ?, ?, ?) ");
 
-    KeyHolder keyHolder = new GeneratedKeyHolder();
-    jt.update(new PreparedStatementCreator(){
-      @Override
-      public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-        PreparedStatement pstmt = con.prepareStatement(sql.toString(),new String[]{"product_id"});
-        pstmt.setString(1,product.getPname());
-        pstmt.setInt(2,product.getCount());
-        pstmt.setInt(3,product.getPrice());
-        return pstmt;
-      }
-    }, keyHolder);
+    add = jt.update(sql.toString(), product.getPid(), product.getPname(), product.getCount(), product.getPrice());
 
-    Long product_id = Long.valueOf(keyHolder.getKeys().get("product_id").toString());
-
-    product.setProductId(product_id);
-    return product;
+    return add;
   }
 
-  //조회
+  /**
+   * 상품조회
+   *
+   * @param pid
+   * @return
+   */
   @Override
-  public Product findById(Long productId) {
+  public Product findById(Long pid) {
     StringBuffer sql = new StringBuffer();
-    sql.append("select product_id as productId, pname, count, price ");
-    sql.append(  "from product ");
-    sql.append( "where product_id = ? ");
+    sql.append("select pid, pname, count, price ");
+    sql.append("from product ");
+    sql.append("where pid = ? ");
 
     Product product = null;
-    try {
-      product = jt.queryForObject(  //단일레코드
-          sql.toString(),new BeanPropertyRowMapper<>(Product.class),productId);
-    } catch (EmptyResultDataAccessException e) {
-      log.info("삭제대상 상품이 없습니다 상품아이디={}",productId);
-    }
-
+    product = jt.queryForObject(sql.toString(), new BeanPropertyRowMapper<>(Product.class), pid);
     return product;
   }
 
-  //수정
+  /**
+   * 상품수정
+   *
+   * @param pid
+   * @param product
+   * @return
+   */
   @Override
-  public void update(Long productId, Product product) {
+  public int update(Long pid, Product product) {
+    int update = 0;
     StringBuffer sql = new StringBuffer();
     sql.append("update product ");
     sql.append("   set pname = ?, ");
-    sql.append("       quantity = ?, ");
+    sql.append("       count = ?, ");
     sql.append("       price = ? ");
-    sql.append(" where product_id = ? ");
+    sql.append(" where pid = ? ");
 
-    jt.update(sql.toString(),product.getPname(),product.getCount(),product.getPrice(),productId);
+    update = jt.update(sql.toString(), product.getPname(), product.getCount(), product.getPrice(), pid);
+    return update;
   }
 
-  //삭제`
+  /**
+   * 상품삭제
+   *
+   * @param pid
+   * @return
+   */
   @Override
-  public void delete(Long productId) {
-    String sql = "delete from product where product_id = ? ";
-    jt.update(sql, productId);
+  public int delete(Long pid) {
+    int delete = 0;
+    String sql = "delete from product where pid = ? ";
+
+    delete = jt.update(sql, pid);
+    return delete;
   }
 
-
+  /**
+   * 전체상품조회
+   *
+   * @return
+   */
   @Override
-  public List<Product> findAll() {
+  public List<Product> allProducts() {
     StringBuffer sql = new StringBuffer();
-    sql.append("select product_id, pname, count, price ");
-    sql.append("from product ");
+    sql.append("select pid, pname, count, price ");
+    sql.append("  from product ");
 
-    List<Product> result = jt.query(sql.toString(),new BeanPropertyRowMapper<>(Product.class));
-    return result;
+    return jt.query(sql.toString(), new BeanPropertyRowMapper<>(Product.class));
+  }
+
+  /**
+   * 상품번호생성
+   *
+   * @return
+   */
+  @Override
+  public Long generatePid() {
+    String sql = "select product_pid_seq.nextval from dual";
+    Long newPid = jt.queryForObject(sql, Long.class);
+    return newPid;
   }
 }

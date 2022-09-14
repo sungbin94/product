@@ -5,13 +5,17 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>상품등록화면</title>
+  <title>상품수정화면</title>
 </head>
 
 <body>
-<h3>상품 등록</h3>
+<h3>상품 수정</h3>
 <hr>
-<form id="addForm" action="" method="post" th:object="${form}">
+<form id="updateForm" action="" method="post" th:object="${form}">
+  <div>
+    <label for="">상품번호</label>
+    <input type="text" th:field="*{pid}" readonly>
+  </div>
   <div>
     <label for="">상품명</label>
     <input type="text" th:field="*{pname}">
@@ -25,15 +29,14 @@
     <input type="text" th:field="*{price}">
   </div>
   <div>
-    <button type="submit" id="addBtn">상품 등록</button>
-    <button type="reset">등록 취소</button>
-    <button type="button" th:onclick="|location.href='@{/product}'|">전체상품 목록</button>
+    <button type="submit">수정내용 저장</button>
+    <button type="button" id="cancelBtn">수정 취소</button>
   </div>
 </form>
-<script>
-        addBtn.addEventListener('click', e => {
-            e.preventDefault();
-            addForm.submit();
+<script th:inline="javascript">
+        cancelBtn.addEventListener('click', e => {
+            const url = [[@{|/product/${form.pid}/edit|}]];
+            location.href = url;
         });
     </script>
 </body>

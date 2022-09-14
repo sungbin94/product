@@ -11,40 +11,66 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProductSVCImpl implements ProductSVC{
+public class ProductSVCImpl implements ProductSVC {
   private final ProductDAO productDAO;
 
-  //  ProductSVCImpl(ProductDAO productDAO){
-//    this.productDAO = productDAO;
-//  }
-  //등록
+  /**
+   * 상품등록
+   *
+   * @param product
+   * @return
+   */
   @Override
-  public Product save(Product product) {
-    return productDAO.save(product);
+  public Product add(Product product) {
+    Long generatePid = productDAO.generatePid();
+    product.setPid(generatePid);
+    productDAO.add(product);
+    return productDAO.findById(generatePid);
   }
 
-  //조회
+  /**
+   * 상품조회
+   *
+   * @param pid
+   * @return
+   */
   @Override
-  public Product findById(Long productId) {
-    return productDAO.findById(productId);
+  public Product findById(Long pid) {
+    return productDAO.findById(pid);
   }
 
-  //수정
+  /**
+   * 상품수정
+   *
+   * @param pid
+   * @param product
+   * @return
+   */
   @Override
-  public void update(Long productId, Product product) {
-    productDAO.update(productId, product);
+  public int update(Long pid, Product product) {
+    int cnt = productDAO.update(pid, product);
+    return cnt;
   }
 
-  //삭제
+  /**
+   * 상품삭제
+   *
+   * @param pid
+   * @return
+   */
   @Override
-  public void delete(Long productId) {
-    productDAO.delete(productId);
+  public int delete(Long pid) {
+    int cnt = productDAO.delete(pid);
+    return cnt;
   }
 
-  //목록
+  /**
+   * 전체상품조회
+   *
+   * @return
+   */
   @Override
-  public List<Product> findAll() {
-    return productDAO.findAll();
+  public List<Product> allProducts() {
+    return productDAO.allProducts();
   }
-
 }
